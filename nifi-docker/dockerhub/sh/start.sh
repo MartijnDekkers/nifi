@@ -32,6 +32,7 @@ if [ ! -z "${NIFI_JVM_DEBUGGER}" ]; then
     uncomment "java.arg.debug" ${nifi_bootstrap_file}
 fi
 
+
 # Establish baseline properties
 prop_replace 'nifi.web.http.port'               "${NIFI_WEB_HTTP_PORT:-8080}"
 prop_replace 'nifi.web.http.host'               "${NIFI_WEB_HTTP_HOST:-$HOSTNAME}"
@@ -54,6 +55,15 @@ prop_replace 'nifi.zookeeper.root.node'                     "${NIFI_ZK_ROOT_NODE
 prop_replace 'nifi.cluster.flow.election.max.wait.time'     "${NIFI_ELECTION_MAX_WAIT:-5 mins}"
 prop_replace 'nifi.cluster.flow.election.max.candidates'    "${NIFI_ELECTION_MAX_CANDIDATES:-}"
 prop_replace 'nifi.web.proxy.context.path'                  "${NIFI_WEB_PROXY_CONTEXT_PATH:-}"
+
+# Allow any property to be replaced, don't break existing implementations.
+for v in $(printenv | grep NIFIPROP_)
+do
+        prop=$(echo $v | sed -e "s/NIFIPROP_/NIFI_/g" | tr '[:upper:]' '[:lower:]' | sed -e "s/_/./g" | cut -f1 -d"=")
+        propval=$(echo $v | cut -f2 -d"=")
+        prop_replace "$prop"    "$propval"
+done
+
 
 . "${scripts_dir}/update_cluster_state_management.sh"
 

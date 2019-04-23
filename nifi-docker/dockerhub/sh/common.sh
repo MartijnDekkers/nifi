@@ -29,8 +29,28 @@ uncomment() {
 	sed -i -e "s|^\#$1|$1|" ${target_file}
 }
 
-# NIFI_HOME is defined by an ENV command in the backing Dockerfile
-export nifi_bootstrap_file=${NIFI_HOME}/conf/bootstrap.conf
-export nifi_props_file=${NIFI_HOME}/conf/nifi.properties
-export nifi_toolkit_props_file=${HOME}/.nifi-cli.nifi.properties
-export hostname=$(hostname)
+# Read non-default locations. NIFI_HOME is defined by an ENV command in the backing Dockerfile
+
+if [ ! -z "${NIFIINIT_BOOTSTRAP_FILE_LOCATION}" ]; then
+	export nifi_bootstrap_file="${NIFIINIT_BOOTSTRAP_FILE_LOCATION}"
+else
+	export nifi_bootstrap_file=${NIFI_HOME}/conf/bootstrap.conf
+fi
+
+if [ ! -z "${NIFIINIT_PROPS_FILE_LOCATION}" ]; then
+        export nifi_props_file="${NIFIINIT_PROPS_FILE_LOCATION}"
+else
+        export nifi_props_file=${NIFI_HOME}/conf/nifi.properties
+fi
+
+if [ ! -z "${NIFIINIT_TOOLKIT_PROPS_FILE_LOCATION}" ]; then
+        export nifi_toolkit_props_file="${NIFIINIT_TOOLKIT_PROPS_FILE_LOCATION}"
+else
+        export nifi_toolkit_props_file=${HOME}/.nifi-cli.nifi.properties
+fi
+
+if [ ! -z "${NIFIINIT_HOSTNAME}" ]; then
+        export hostname="${NIFIINIT_HOSTNAME}"
+else
+        export hostname=$(hostname)
+fi
